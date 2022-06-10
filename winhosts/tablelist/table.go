@@ -2,9 +2,14 @@ package tablelist
 
 import (
 	"fmt"
-	"github.com/fatih/color"
+	"github.com/gookit/color"
 	"strings"
 )
+
+type LineData struct {
+	Data  string
+	Color color.Color
+}
 
 type Table struct {
 	/**
@@ -14,11 +19,11 @@ type Table struct {
 	/**
 	 * 存放 每行数据
 	 */
-	contentLine [][]string
+	contentLine [][]LineData
 	/**
 	 * 存放 第一行tab数据
 	 */
-	tab []string
+	tab []LineData
 	/**
 	 * 存放 tab的间距
 	 */
@@ -31,10 +36,6 @@ type Table struct {
 	 * 存放 每行数据的前缀
 	 */
 	prefixContent string
-	/**
-	 * 默认字段数量
-	 */
-	tablen int
 }
 
 func NewTable() *Table {
@@ -42,9 +43,7 @@ func NewTable() *Table {
 		spacing:       10,
 		prefixTab:     " - ",
 		prefixContent: " * ",
-		tablen:        5,
 	}
-	t.initContentMaxLen(t.tablen)
 	return t
 }
 
@@ -61,18 +60,26 @@ func (t *Table) SetSpacing(spacing int) {
 	t.spacing = spacing
 }
 
-func (t *Table) SetTab(tab []string) {
+func (t *Table) SetTab(tab []LineData) {
 	t.tab = tab
-	if len(t.contentFieldMaxLen) > len(tab) {
-		t.tab = append(t.tab, make([]string, len(t.contentFieldMaxLen)-len(tab))...)
+}
+
+/**
+初始化列数
+存放每列数据的最大长度
+*/
+func (t *Table) initContentMaxLen() {
+	if len(t.contentLine) == 0 {
+		return
+	}
+	if len(t.contentLine) == 1 || len(t.contentLine[0]) > len(t.contentLine[1]) {
+		t.contentFieldMaxLen = make([]int, len(t.contentLine[0]))
+	} else {
+		t.contentFieldMaxLen = make([]int, len(t.contentLine[1]))
 	}
 }
 
-func (t *Table) initContentMaxLen(l int) {
-	t.contentFieldMaxLen = make([]int, l)
-}
-
-func (t *Table) SetData(data []string) {
+func (t *Table) SetData(data []LineData) {
 	t.contentLine = append(t.contentLine, data)
 }
 
@@ -90,27 +97,28 @@ func (t *Table) printLine() {
 		}
 		for index, val := range contentSlice {
 			// 当列最长 - 当前长度 + 间距
-			space := t.contentFieldMaxLen[index] - len(val) + t.spacing
+			space := t.contentFieldMaxLen[index] - len(val.Data) + t.spacing
+			var data string
+			if val.Color == 0 {
+				data = val.Data
+			} else {
+				data = val.Color.Sprintf(val.Data)
+			}
 			lineStr += fmt.Sprintf("%s%s",
-				val,
+				data,
 				strings.Repeat(" ", space),
 			)
 		}
-		//lineStr += "\n"
 
-		if k == 0 && len(t.tab) > 0 {
-			fmt.Println(lineStr)
-		} else {
-			color.Green(lineStr)
-		}
+		fmt.Println(lineStr)
 	}
 }
 
 func (t *Table) readData() {
 	for _, v1 := range t.contentLine {
 		for k, v2 := range v1 {
-			if len(v2) > t.contentFieldMaxLen[k] {
-				t.contentFieldMaxLen[k] = len(v2)
+			if len(v2.Data) > t.contentFieldMaxLen[k] {
+				t.contentFieldMaxLen[k] = len(v2.Data)
 			}
 		}
 	}
@@ -121,9 +129,10 @@ func (t *Table) readData() {
  */
 func (t *Table) Print() {
 	if len(t.tab) > 0 {
-		t.contentLine = append([][]string{t.tab}, t.contentLine...)
+		t.contentLine = append([][]LineData{t.tab}, t.contentLine...)
 	}
-	t.readData()
 
+	t.initContentMaxLen()
+	t.readData()
 	t.printLine()
 }

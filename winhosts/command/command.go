@@ -3,7 +3,7 @@ package command
 import (
 	"bufio"
 	"fmt"
-	"github.com/fatih/color"
+	"github.com/gookit/color"
 	"github.com/spf13/cobra"
 	"hosts/tablelist"
 	"io"
@@ -58,8 +58,7 @@ func NewCmds() *cmds {
 	c.RootCmd = &cobra.Command{
 		Use:              "hosts ",
 		TraverseChildren: true,
-
-		Example: "hosts ls\n",
+		Example:          "hosts ls",
 	}
 	// 使用自己的模板
 	c.RootCmd.SetUsageTemplate(t())
@@ -97,12 +96,7 @@ func (c *cmds) add() {
 			ip, _ := cmd.Flags().GetString("ip")
 			host, _ := cmd.Flags().GetString("host")
 
-			if net.ParseIP(ip) == nil {
-				cmd.Help()
-				fmt.Println()
-				return
-			}
-			if host == "" {
+			if net.ParseIP(ip) == nil || host == "" {
 				cmd.Help()
 				fmt.Println()
 				return
@@ -164,13 +158,28 @@ func ls() {
 			continue
 		}
 		ipstr := ipOb.String()
-
 		for _, domain := range hostArr[1:] {
-			T.SetData([]string{ipstr, domain})
+			T.SetData([]tablelist.LineData{
+				{
+					Data:  ipstr,
+					Color: color.Green,
+				},
+				{
+					Data:  domain,
+					Color: color.Green,
+				},
+			})
 		}
 	}
 
-	T.SetTab([]string{"IP", "HOST"})
+	T.SetTab([]tablelist.LineData{
+		{
+			Data: "IP",
+		},
+		{
+			Data: "HOST",
+		},
+	})
 	T.Print()
 }
 
@@ -188,7 +197,7 @@ func hostadd(ip, host string) {
 	}
 
 	fmt.Printf("ip:%s - host:%s\n", ip, host)
-	color.Green("Success create")
+	color.Greenln("Success create")
 }
 
 func (this *cmds) Execute() {
