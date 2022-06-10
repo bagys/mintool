@@ -1,0 +1,129 @@
+package commandlist
+
+import (
+	"fmt"
+	"strings"
+)
+
+type Table struct {
+	/**
+	 * 存放 每段数据最大长度
+	 */
+	ContentFieldMaxLen []int
+	/**
+	 * 存放 每行数据
+	 */
+	ContentLine [][]string
+	/**
+	 * 存放 第一行tab数据
+	 */
+	Tab []string
+	/**
+	 * 存放 tab的间距
+	 */
+	Spacing int
+	/**
+	 * 存放 tab的前缀
+	 */
+	PrefixTab string
+	/**
+	 * 存放 每行数据的前缀
+	 */
+	PrefixContent string
+
+	Tablen int
+}
+
+func NewTable() *Table {
+
+	t := &Table{
+		Spacing:       10,
+		PrefixTab:     " - ",
+		PrefixContent: " * ",
+		Tablen:        10,
+	}
+
+	t.initContentMaxLen(t.Tablen)
+
+	return t
+}
+
+func (t *Table) initContentMaxLen(l int) {
+	t.ContentFieldMaxLen = make([]int, l)
+}
+
+func (t *Table) SetPrefixTab(Prefix string) {
+	t.PrefixTab = Prefix
+	t.PrefixContent = Prefix
+}
+
+func (t *Table) SetPrefixContent(Prefix string) {
+	t.PrefixContent = Prefix
+}
+
+func (t *Table) SetTab(tab []string) {
+	t.Tab = tab
+	if len(t.ContentFieldMaxLen) > len(tab) {
+		t.Tab = append(t.Tab, make([]string, len(t.ContentFieldMaxLen)-len(tab))...)
+	}
+}
+
+func (t *Table) printTab() {
+	if len(t.Tab) <= 0 {
+		return
+	}
+	if t.PrefixTab != "" {
+		fmt.Printf("%s", t.PrefixTab)
+	}
+	for index, tabValue := range t.Tab {
+
+		space := t.Spacing
+		if len(tabValue) < t.ContentFieldMaxLen[index] {
+			space = t.ContentFieldMaxLen[index] - len(tabValue) + t.Spacing
+		}
+
+		fmt.Printf("%s%s",
+			tabValue,
+			strings.Repeat(" ", space),
+		)
+	}
+	fmt.Printf("\n")
+}
+
+func (t *Table) printLine() {
+
+	for k, contentSlice := range t.ContentLine {
+
+		if t.PrefixContent != "" {
+			if k == 0 && len(t.Tab) > 0 {
+				fmt.Printf("%s", t.PrefixTab)
+			} else {
+				fmt.Printf("%s", t.PrefixContent)
+			}
+		}
+
+		for index, val := range contentSlice {
+			space := t.ContentFieldMaxLen[index] - len(val) + t.Spacing
+			if t.Tab != nil {
+				if len(t.Tab[index]) > t.ContentFieldMaxLen[index] {
+					space = len(t.Tab[index]) - len(val) + t.Spacing
+				}
+			}
+
+			fmt.Printf("%s%s",
+				val,
+				strings.Repeat(" ", space),
+			)
+		}
+		fmt.Printf("\n")
+
+	}
+}
+
+/**
+ *	打印
+ */
+func (t *Table) Print() {
+	t.ContentLine = append([][]string{t.Tab}, t.ContentLine...)
+	t.printLine()
+}
