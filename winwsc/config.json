@@ -1,0 +1,24 @@
+{
+  "services": [
+    {
+      "svcname": "nginx",
+      "short": "n",
+      "describe": "nginx serer"
+    },
+    {
+      "svcname": "redis",
+      "short": "r",
+      "describe": "redis serer"
+    },
+    {
+      "svcname": "phpfpm",
+      "short": "p",
+      "describe": "nginx serer"
+    },
+    {
+      "svcname": "mysql",
+      "short": "m",
+      "describe": "mysql serer"
+    }
+  ]
+}
