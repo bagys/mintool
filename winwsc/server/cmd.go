@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/bagys/ctb"
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
 	"sync"
@@ -128,18 +129,14 @@ func (this *Cmd) ActionBindSvc() {
 
 // 打印列表
 func (this Cmd) PrintList() {
-	T := NewTable()
-	T.SetTab([]LineData{
-		{
-			Data: "SERVICE",
-		},
-		{
-			Data: "DESCRIBE",
-		},
-		{
-			Data: "STATUS",
-		},
-	})
+	T := ctb.NewTable(
+		ctb.WithPrefixDisable(false),
+		ctb.WithTab([]ctb.LineData{
+			{Data: "SERVICE"},
+			{Data: "DESCRIBE"},
+			{Data: "STATUS"},
+		}),
+	)
 
 	for _, v := range this.Services {
 		status := Status(v["svcname"])
@@ -152,17 +149,10 @@ func (this Cmd) PrintList() {
 		default:
 			C = color.Red
 		}
-		T.SetData([]LineData{
-			{
-				Data: v["svcname"],
-			},
-			{
-				Data: v["describe"],
-			},
-			{
-				Data:  status,
-				Color: C,
-			},
+		T.SetDataOne([]ctb.LineData{
+			{Data: v["svcname"]},
+			{Data: v["describe"]},
+			{Data: status, Color: C},
 		})
 	}
 	T.Print()

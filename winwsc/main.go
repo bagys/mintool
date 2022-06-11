@@ -1,11 +1,7 @@
 package main
 
-import (
-	"wsc/server"
-)
+import "wsc/server"
 
 func main() {
-
 	server.NewCmd().Execute()
-
 }
