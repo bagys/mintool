@@ -3,9 +3,9 @@ package command
 import (
 	"bufio"
 	"fmt"
+	"github.com/bagys/ctb"
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
-	"hosts/tablelist"
 	"io"
 	"log"
 	"net"
@@ -123,7 +123,8 @@ func (c *cmds) add() {
 }
 
 func ls() {
-	T := tablelist.NewTable()
+	T := ctb.NewTable()
+	T.SetPrefixDisable(false)
 	f, errf := os.Open(`C:\Windows\System32\drivers\etc\hosts`)
 	defer f.Close()
 	if errf != nil {
@@ -159,26 +160,16 @@ func ls() {
 		}
 		ipstr := ipOb.String()
 		for _, domain := range hostArr[1:] {
-			T.SetData([]tablelist.LineData{
-				{
-					Data:  ipstr,
-					Color: color.Green,
-				},
-				{
-					Data:  domain,
-					Color: color.Green,
-				},
+			T.SetDataOne([]ctb.LineData{
+				{Data: ipstr, Color: color.Green},
+				{Data: domain, Color: color.Green},
 			})
 		}
 	}
 
-	T.SetTab([]tablelist.LineData{
-		{
-			Data: "IP",
-		},
-		{
-			Data: "HOST",
-		},
+	T.SetTab([]ctb.LineData{
+		{Data: "IP"},
+		{Data: "HOST"},
 	})
 	T.Print()
 }
