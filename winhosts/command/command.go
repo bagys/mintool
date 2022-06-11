@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+var hostfile = `C:\Windows\System32\drivers\etc\hosts`
+
 func t() string {
 
 	return `Usage:{{if .Runnable}}
@@ -118,7 +120,7 @@ func (c *cmds) add() {
 func ls() {
 	T := ctb.NewTable()
 	T.SetPrefixDisable(false)
-	f, errf := os.Open(`C:\Windows\System32\drivers\etc\hosts`)
+	f, errf := os.Open(hostfile)
 	defer f.Close()
 	if errf != nil {
 		log.Fatal(errf)
@@ -163,7 +165,7 @@ func ls() {
 }
 
 func hostadd(ip, host string) {
-	f, errf := os.OpenFile(`C:\Windows\System32\drivers\etc\hosts`, os.O_APPEND, 0644)
+	f, errf := os.OpenFile(hostfile, os.O_APPEND, 0644)
 	defer f.Close()
 	if errf != nil {
 		log.Fatal(errf)
