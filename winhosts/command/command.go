@@ -60,15 +60,13 @@ func NewCmds() *cmds {
 		TraverseChildren: true,
 		Example:          "hosts ls",
 	}
-	// 使用自己的模板
+
 	c.RootCmd.SetUsageTemplate(t())
 	c.RootCmd.CompletionOptions.DisableDefaultCmd = true
-	// 不排序命令
 	cobra.EnableCommandSorting = false
 
 	help := &cobra.Command{}
 	c.RootCmd.SetHelpCommand(help)
-
 	c.ls()
 	c.add()
 	return c
@@ -92,10 +90,8 @@ func (c *cmds) add() {
 		DisableFlagsInUseLine: true,
 		Example:               "hosts add --ip=127.0.0.1 --host=localhost \n  hosts add -i 127.0.0.1 -h localhost",
 		Run: func(cmd *cobra.Command, args []string) {
-
 			ip, _ := cmd.Flags().GetString("ip")
 			host, _ := cmd.Flags().GetString("host")
-
 			if net.ParseIP(ip) == nil || host == "" {
 				cmd.Help()
 				fmt.Println()
@@ -106,8 +102,6 @@ func (c *cmds) add() {
 	}
 	// 不排序
 	addcd.Flags().SortFlags = false
-
-	// 覆盖默认的 help
 	addcd.Flags().Bool("help", false, "help")
 	addcd.Flags().MarkHidden("help")
 
@@ -119,7 +113,6 @@ func (c *cmds) add() {
 
 	addcd.SetUsageTemplate(z())
 	c.RootCmd.AddCommand(addcd)
-
 }
 
 func ls() {
@@ -131,7 +124,6 @@ func ls() {
 		log.Fatal(errf)
 	}
 	read := bufio.NewReader(f)
-
 	for {
 		line, err := read.ReadString('\n')
 
@@ -141,11 +133,9 @@ func ls() {
 			}
 			break
 		}
-
 		if line[:1] == "#" {
 			continue
 		}
-
 		re, _ := regexp.Compile(`\s+`)
 		line = strings.Trim(re.ReplaceAllString(line, " "), " ")
 
@@ -153,7 +143,6 @@ func ls() {
 		if len(hostArr) <= 1 {
 			continue
 		}
-
 		ipOb := net.ParseIP(hostArr[0])
 		if ipOb == nil {
 			continue
@@ -166,7 +155,6 @@ func ls() {
 			})
 		}
 	}
-
 	T.SetTab([]ctb.LineData{
 		{Data: "IP"},
 		{Data: "HOST"},
